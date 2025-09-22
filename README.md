@@ -1,1 +1,0 @@
-# This is the file for the project details to show for upcoming days
