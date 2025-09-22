@@ -75,28 +75,3 @@ jobs:
         with:
           name: reports
           path: reports/
-  deploy:
-   name: Deploy to GitHub Pages
-   runs-on: ubuntu-latest
-   needs: build
-   steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-    - run: |
-        npm ci
-        npm run build
-        rm -rf docs
-        mv build docs
-    - name: Commit and Push docs to main branch
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add docs
-        git commit -m "Deploy updated docs folder [skip ci]" || echo "No changes to commit"
-        git push origin main
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
