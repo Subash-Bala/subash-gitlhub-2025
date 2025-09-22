@@ -29,13 +29,11 @@ jobs:
       - run: |
           npm ci
           npm run build
-          rm -rf docs
-          mv build docs
-      - name: Upload docs artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docs
-          path: docs/
+          name: build
+          path: build/
 
   test_artifacts:
     name: Check Build Artifacts
@@ -43,14 +41,14 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Download docs artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: docs
-          path: docs
+          name: build
+          path: build
       - run: |
-          echo "🔍 Checking for index.html in docs..."
-          if [ -f docs/index.html ]; then
+          echo "🔍 Checking for index.html in build..."
+          if [ -f build/index.html ]; then
             echo "✔ index.html is found."
           else
             echo "❌ index.html is not found."
@@ -75,3 +73,21 @@ jobs:
         with:
           name: reports
           path: reports/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [unit_test, test_artifacts]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build
+          publish_branch: gh-pages
